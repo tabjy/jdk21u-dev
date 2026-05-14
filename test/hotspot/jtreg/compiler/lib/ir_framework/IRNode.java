@@ -1295,6 +1295,11 @@ public class IRNode {
         vectorNode(SIGNUM_VF, "SignumVF", TYPE_FLOAT);
     }
 
+    public static final String SQRT_D = PREFIX + "SQRT_D" + POSTFIX;
+    static {
+        beforeMatchingNameRegex(SQRT_D, "SqrtD");
+    }
+
     public static final String SQRT_VF = VECTOR_PREFIX + "SQRT_VF" + POSTFIX;
     static {
         vectorNode(SQRT_VF, "SqrtVF", TYPE_FLOAT);
@@ -2042,6 +2047,14 @@ public class IRNode {
     static {
         String regex = START + "(zXChgP)|(zGetAndSetP\\S*)" + MID + "barrier\\(\\s*" + IS_REPLACED + "\\s*\\)" + END;
         machOnly(Z_GET_AND_SET_P_WITH_BARRIER_FLAG, regex);
+    }
+
+    public static final String POW_D = PREFIX + "POW_D" + POSTFIX;
+    static {
+        String regex = START + "PowD" + MID + END;
+        IR_NODE_MAPPINGS.put(POW_D, new SinglePhaseRangeEntry(CompilePhase.ITER_GVN2, regex,
+                                                                CompilePhase.BEFORE_STRINGOPTS,
+                                                                CompilePhase.BEFORE_MATCHING));
     }
 
     /*

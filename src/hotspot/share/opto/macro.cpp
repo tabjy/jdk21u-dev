@@ -2385,6 +2385,7 @@ void PhaseMacroExpand::eliminate_macro_nodes() {
         assert(n->Opcode() == Op_LoopLimit ||
                n->Opcode() == Op_Opaque3   ||
                n->Opcode() == Op_Opaque4   ||
+               n->Opcode() == Op_PowD      ||
                n->Opcode() == Op_MaxL      ||
                n->Opcode() == Op_MinL      ||
                BarrierSet::barrier_set()->barrier_set_c2()->is_gc_barrier_node(n),
@@ -2542,7 +2543,17 @@ bool PhaseMacroExpand::expand_macro_nodes() {
       expand_subtypecheck_node(n->as_SubTypeCheck());
       break;
     default:
-      assert(false, "unknown node type in macro list");
+      switch (n->Opcode()) {
+      case Op_PowD: {
+        CallLeafPureNode* call_macro = n->as_CallLeafPure();
+        CallLeafPureNode* call = call_macro->inline_call_leaf_pure_node();
+        _igvn.replace_node(call_macro, call);
+        transform_later(call);
+        break;
+      }
+      default:
+        assert(false, "unknown node type in macro list");
+      }
     }
     assert(C->macro_count() == (old_macro_count - 1), "expansion must have deleted one node from macro list");
     if (C->failing())  return true;
